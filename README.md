@@ -99,27 +99,52 @@ Run the following query to create the Persons table:
 
 DROP TABLE IF EXISTS Persons;
 
-CREATE TABLE Persons (
-  PersonID INT PRIMARY KEY,
-  FirstName NVARCHAR(50),
-  LastName NVARCHAR(50),
-  Address NVARCHAR(100),
-  City NVARCHAR(50)
+
+-- Create the new table without Rank column initially
+CREATE TABLE Debtors (
+    DebtorID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    AmountOwed DECIMAL(18, 2)
 );
-GO
-4. Insert Sample Data:
-Insert some sample data into the Persons table with:
 
 
-INSERT INTO Persons (PersonID, FirstName, LastName, Address, City)
-VALUES (1, 'John', 'Doe', '123 Elm St', 'Somewhere');
-GO
-5. Verify the Data:
-Run the following query to verify that the data has been inserted:
 
 
-SELECT * FROM Persons;
-GO
+
+
+
+-- Insert data into the table
+INSERT INTO Debtors (FirstName, LastName, AmountOwed)
+VALUES
+    ('John', 'Doe', 5000.00),
+    ('Jane', 'Smith', 12000.50),
+    ('Alex', 'Johnson', 8500.00),
+    ('Emily', 'Davis', 6000.75),
+    ('Michael', 'Brown', 15000.00);
+
+-- Add Rank column after inserting data
+ALTER TABLE Debtors ADD Rank INT;
+
+-- Update the Rank column based on AmountOwed (highest to lowest)
+WITH RankedData AS (
+    SELECT 
+        DebtorID,
+        ROW_NUMBER() OVER (ORDER BY AmountOwed DESC) AS Rank
+    FROM Debtors
+)
+UPDATE Debtors
+SET Rank = RankedData.Rank
+FROM Debtors
+JOIN RankedData ON Debtors.DebtorID = RankedData.DebtorID;
+
+-- Select all data to verify the results
+SELECT * FROM Debtors;
+
+
+
+
+
 Additional Notes:
 Ensure that your SQL Server container is running and accessible through port 1434.
 
