@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data from Backend</title>
+</head>
+<body style="background-color: brown;">
+
+  <h1>Data from SQL Server</h1>
+  <table id="data-table" border="1">
+    <thead>
+      <tr>
+        <th>PersonID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Address</th>
+        <th>City</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data rows will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    // Function to fetch data from the backend
+    async function fetchData() {
+      try {
+        // Send GET request to /data endpoint
+        const response = await fetch('/data'); // This will call the backend route you defined
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        // Parse the response JSON
+        const data = await response.json();
+        
+        // Get the HTML element where you want to display the data
+        const dataTableBody = document.querySelector('#data-table tbody');
+        
+        // Loop through the data and append to the table
+        data.forEach(item => {
+          const row = document.createElement('tr');
+          
+          const personIdCell = document.createElement('td');
+          personIdCell.textContent = item.PersonID;
+          row.appendChild(personIdCell);
+
+          const firstNameCell = document.createElement('td');
+          firstNameCell.textContent = item.FirstName;
+          row.appendChild(firstNameCell);
+          
+          const lastNameCell = document.createElement('td');
+          lastNameCell.textContent = item.LastName;
+          row.appendChild(lastNameCell);
+          
+          const addressCell = document.createElement('td');
+          addressCell.textContent = item.Address;
+          row.appendChild(addressCell);
+          
+          const cityCell = document.createElement('td');
+          cityCell.textContent = item.City;
+          row.appendChild(cityCell);
+          
+          // Append the row to the table body
+          dataTableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    // Fetch data when the page loads
+    fetchData();
+  </script>
+
+</body>
+</html>
