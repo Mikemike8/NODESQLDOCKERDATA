@@ -15,7 +15,7 @@ const config = {
   user: 'sa', // Your SQL Server username
   password: 'YourStrong!Passw0rd', // Your SQL Server password
   server: 'localhost', // Use 'localhost' or '127.0.0.1'
-  port: 1434,// whatever port you using in docker
+  port: 1434, // whatever port you're using (check your Docker config if needed)
   database: 'NewDatabase', // Database name (can be 'master' or your specific DB name)
   options: {
     encrypt: true, // If connecting to Azure or a secured SQL Server
@@ -29,15 +29,15 @@ async function getData() {
     // Connect to the SQL Server database
     await sql.connect(config);
     
-    // Run a query
-    const result = await sql.query`SELECT * FROM Persons`; // Replace with your table/query
+    // Run a query to select from the Debtors table
+    const result = await sql.query`SELECT DebtorID, FirstName, LastName, AmountOwed, Rank FROM Debtors`; // Query your table
 
     // Return the result to the client (if needed)
-    return result.recordset;
+    return result.recordset; // Return the result set containing the rows
   } catch (err) {
     // Handle any errors
     console.error('Error executing query:', err);
-    throw err; // Throw the error if needed
+    throw err; // Rethrow the error to be handled later in the route
   } finally {
     // Close the connection
     await sql.close();

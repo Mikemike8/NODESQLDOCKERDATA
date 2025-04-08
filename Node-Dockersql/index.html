@@ -4,22 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data from Backend</title>
+  <style>
+    body {
+      background-color: brown;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #333;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #555;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #444;
+    }
+
+    tr:hover {
+      background-color: #666;
+    }
+  </style>
 </head>
-<body style="background-color: brown;">
+<body>
 
   <h1>Data from SQL Server</h1>
-  <table id="data-table" border="1">
+  <table id="debtor-table">
     <thead>
       <tr>
-        <th>PersonID</th>
+        <th>Rank</th>
+       
         <th>First Name</th>
         <th>Last Name</th>
-        <th>Address</th>
-        <th>City</th>
+        <th>Top Debtors</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Data rows will be inserted here -->
+      <!-- Data rows will be appended here -->
     </tbody>
   </table>
 
@@ -29,51 +72,63 @@
       try {
         // Send GET request to /data endpoint
         const response = await fetch('/data'); // This will call the backend route you defined
-        
+
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        
+
         // Parse the response JSON
         const data = await response.json();
-        
-        // Get the HTML element where you want to display the data
-        const dataTableBody = document.querySelector('#data-table tbody');
-        
-        // Loop through the data and append to the table
+
+        // Sort the data by Rank (ascending order)
+        data.sort((a, b) => a.Rank - b.Rank);
+
+        // Get the table body element
+        const dataTableBody = document.querySelector('#debtor-table tbody');
+
+        // Clear the existing table rows before appending new data
+        dataTableBody.innerHTML = '';
+
+        // Loop through the data and append it to the table
         data.forEach(item => {
           const row = document.createElement('tr');
           
-          const personIdCell = document.createElement('td');
-          personIdCell.textContent = item.PersonID;
-          row.appendChild(personIdCell);
+          // Create table cells (td) for each property of the debtor
+          const rankCell = document.createElement('td');
+          rankCell.textContent = item.Rank || 'N/A'; // Display the rank
+          row.appendChild(rankCell);
 
           const firstNameCell = document.createElement('td');
-          firstNameCell.textContent = item.FirstName;
+          firstNameCell.textContent = item.FirstName || 'N/A';
           row.appendChild(firstNameCell);
           
           const lastNameCell = document.createElement('td');
-          lastNameCell.textContent = item.LastName;
+          lastNameCell.textContent = item.LastName || 'N/A';
           row.appendChild(lastNameCell);
-          
-          const addressCell = document.createElement('td');
-          addressCell.textContent = item.Address;
-          row.appendChild(addressCell);
-          
-          const cityCell = document.createElement('td');
-          cityCell.textContent = item.City;
-          row.appendChild(cityCell);
+
+          const amountOwedCell = document.createElement('td');
+          amountOwedCell.textContent = item.AmountOwed !== undefined ? `$${item.AmountOwed.toFixed(2)}` : 'N/A'; // Format as currency
+          row.appendChild(amountOwedCell);
           
           // Append the row to the table body
           dataTableBody.appendChild(row);
         });
       } catch (error) {
         console.error('Error fetching data:', error);
+
+        // Display an error message in case of a failure
+        const dataTableBody = document.querySelector('#debtor-table tbody');
+        const errorRow = document.createElement('tr');
+        const errorCell = document.createElement('td');
+        errorCell.colSpan = 5; // Make the error message span all columns
+        errorCell.textContent = 'Error fetching data from the backend. Please try again later.';
+        errorRow.appendChild(errorCell);
+        dataTableBody.appendChild(errorRow);
       }
     }
 
     // Fetch data when the page loads
-    fetchData();
+    window.onload = fetchData;
   </script>
 
 </body>
